@@ -2,8 +2,14 @@
 Safe fish tank with Intel Edison
 
 ## Host-setup
-Host is your computer that will communicate with Edison
+Host will be your computer that will communicate with Edison
 
+### OpenCV & numpy
+```shell
+sudo yum remove numpy opencv*
+```
+
+### Pololu maestro-linux
 To setup the Pololu servo, we may need install maestro-linux.
 There is a readme.txt file in tar file, which tell you about how to install it
 in Ubuntu, and here are the required packages in Fedora
