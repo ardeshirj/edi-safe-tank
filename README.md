@@ -2,17 +2,23 @@
 Safe fish tank with Intel Edison
 
 ## Host-setup
-Host will be your computer that will communicate with Edison
+Host is your computer that will communicate with Edison
 
-### OpenCV & numpy
+There are two major ways to controll MeArm servos.
+### Adafruit Servo Driver
 ```shell
-sudo yum remove numpy opencv*
+# Install libffi-dev package
+opkg install libffi-dev
+
+# Install smbus-cffi
+pip install cffi
+pip install smbus-cffi
 ```
 
-### Pololu maestro-linux
-To setup the Pololu servo, we may need install maestro-linux.
+### Pololu Micro Maestro
+We may need install maestro-linux.
 There is a readme.txt file in tar file, which tell you about how to install it
-in Ubuntu, and here are the required packages in Fedora
+in Ubuntu but not in Fedora. Here are the required packages in Fedora
 ```shell
 sudo yum install mono-basic libusb-devel
 ```
