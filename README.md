@@ -1,5 +1,5 @@
 # Edi-Safe-Tank
-Safe fish tank with Intel Edison
+Safe fish tank with Intel Edison & MeArm
 
 ## Host-setup
 Host is your computer that will communicate with Edison
@@ -12,17 +12,6 @@ sudo yum install opencv*
 # you may want to copy it from the system python site-packages
 # to virtualenv site-packages:
 cp /usr/lib64/python2.7/site-packages/cv* ./env/lib64/python2.7/site-packages
-```
-
-There are two major ways to control MeArm servos.
-### Adafruit Servo Driver
-```shell
-# Install libffi-dev package
-opkg install libffi-dev
-
-# Install smbus-cffi python packages
-pip install cffi
-pip install smbus-cffi
 ```
 
 ### Pololu Micro Maestro
@@ -38,6 +27,8 @@ pip install pyserial
 
 ## Edison-Setup
 Install opencv through opkg package manager
+
+### Opencv
 ```shell
 vi /etc/opkg/base-feeds.conf
 
@@ -53,4 +44,14 @@ opkg install opencv python-opencv
 python
 >>> import numpy
 >>> import cv2
+```
+
+### Adafruit Servo Driver
+```shell
+# Install libffi-dev package
+opkg install libffi-dev
+
+# Install smbus-cffi python packages
+pip install cffi
+pip install smbus-cffi
 ```
