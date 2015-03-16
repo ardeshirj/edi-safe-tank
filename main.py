@@ -1,40 +1,88 @@
+from time import sleep
+import maestro
 import numpy as np
 import cv2
 
-# Arm will pick up the test strip
-# Dip it in water for 5 seconds
-# Move it in front of the camera
+THRESHOLD = 200
 
-# Take a picture after 10-15 seconds
+if __name__ == "__main__":
 
-# For each chemical unsafe boundaries
-#   If the result is not complete black (requires clear background)
-#       then the water is in unsafe condition for that chemical
+    controller = maestro.ServoController('/dev/ttyACM0', 9600)
 
-image = cv2.imread('example.jpg', 1)
+    # Close the claw
+    controller.set_target(3, 1850)
 
-safe_boundaries = [
-    # [G, B, R] (Higher, Lower)
-    ([195, 199, 224], [218, 223, 236]),  # NO3 and NO2
-    ([118, 57, 228], [214, 101, 254]),   # PH
-    ([187, 155, 132], [230, 160, 237]),  # KH
-    ([158, 173, 102], [216, 204, 166]),  # GH
-]
+    # Rotate 45 degree
+    controller.set_target(0, 1600)
 
-unsafe_boundaries = [
-    # [G, B, R] (Higher, Lower)
-    ([128, 146, 211], [188, 195, 239]),  # NO3 and NO2
-    ([67, 82, 219], [92, 71, 213]),      # PH
-    ([166, 163, 86], [210, 184, 146]),   # KH
-    ([83, 127, 54], [150, 171, 105]),    # GH
-]
+    # Dip the strip to water
+    controller.set_target(1, 1200)
 
-for (lower, upper) in safe_boundaries:
-    lower = np.array(lower, dtype="uint8")
-    upper = np.array(upper, dtype="uint8")
+    # Move back up
+    controller.set_target(1, 1700)
 
-    mask = cv2.inRange(image, lower, upper)
-    output = cv2.bitwise_and(image, image, mask=mask)
+    # Rotate 45 degree
+    controller.set_target(0, 1200)
 
-    cv2.imwrite('mask.jpg', mask)
-    cv2.imwrite('result.jpg', output)
+    # Bring it to the front of the camera
+    controller.set_target(1, 1440)
+    controller.set_target(2, 2380)
+
+    cap = cv2.VideoCapture(1)
+
+    # Setup the camera manually if needed
+    # while(True):
+    #     # Capture frame-by-frame
+    #     ret, frame = cap.read()
+    #
+    #     # Display the resulting frame
+    #     cv2.imshow('frame', frame)
+    #     if cv2.waitKey(1) & 0xFF == ord('q'):
+    #         break
+    #
+    # # When everything done, release the capture
+    # cap.release()
+    # cv2.destroyAllWindows()
+
+    ret, frame = cap.read()
+    sleep(5)
+    cv2.imwrite('example.jpg', frame)
+
+    # Reset the arm position
+    controller.reset_position()
+
+    image = cv2.imread('example.jpg', 1)
+
+    # safe_boundaries = [
+    #     # [G, B, R] (Higher, Lower)
+    #     ([195, 199, 224], [218, 223, 236]),  # NO3 and NO2
+    #     ([118, 57, 228], [214, 101, 254]),   # PH
+    #     ([187, 155, 132], [230, 160, 237]),  # KH
+    #     ([158, 173, 102], [216, 204, 166]),  # GH
+    # ]
+    #
+    # unsafe_boundaries = [
+    #     # [G, B, R] (Higher, Lower)
+    #     ([128, 146, 211], [188, 195, 239]),  # NO3 and NO2
+    #     ([67, 82, 219], [92, 71, 213]),      # PH
+    #     ([166, 163, 86], [210, 184, 146]),   # KH
+    #     ([83, 127, 54], [150, 171, 105]),    # GH
+    # ]
+
+    GH_unsafe_boundaries = [([83, 127, 54], [150, 171, 105])]
+
+    for (lower, upper) in GH_unsafe_boundaries:
+        lower = np.array(lower, dtype="uint8")
+        upper = np.array(upper, dtype="uint8")
+
+        mask = cv2.inRange(image, lower, upper)
+        output = cv2.bitwise_and(image, image, mask=mask)
+
+        # cv2.imwrite('mask.jpg', mask)
+        cv2.imwrite('result.jpg', output)
+
+    result = cv2.imread('result.jpg', 1)
+    if cv2.countNonZero(mask) > THRESHOLD:
+        print 'GH Value is high'
+    else:
+        print 'GH value is normal'
